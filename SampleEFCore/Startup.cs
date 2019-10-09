@@ -49,9 +49,9 @@ namespace SampleEFCore
         private void ConfigureApplicationDBContext(IServiceCollection services)
         {
             var dbConfig = Configuration.GetSection("MySQLConfig");
-            var host = dbConfig["db_host"] ?? "localhost";
-            var port = dbConfig["db_port"] ?? "3306";
-            var password = dbConfig["db_password"] ?? "admin";
+            var host = dbConfig["dbhost"] ?? "localhost";
+            var port = dbConfig["dbport"] ?? "3306";
+            var password = dbConfig["dbpassword"] ?? "admin";
 
             services.AddDbContext<BaseContext>(options =>
             {
