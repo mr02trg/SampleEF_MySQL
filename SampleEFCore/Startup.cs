@@ -28,17 +28,11 @@ namespace SampleEFCore
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddDbContextPool<BaseContext>( 
-               options => options.UseMySql(Configuration.GetConnectionString("DefaultConnection"), // replace with your Connection String
-                   mySqlOptions =>
-                   {
-                       mySqlOptions.ServerVersion(new Version(8, 0, 17), ServerType.MySql); // replace with your Server Version and Type
-                   }
-           ));
+            this.ConfigureApplicationDBContext(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, BaseContext dbContext)
         {
             if (env.IsDevelopment())
             {
@@ -46,6 +40,23 @@ namespace SampleEFCore
             }
 
             app.UseMvc();
+
+            // automatically migrate data
+            // manually we would do Add-Migrations and Update-Database
+            dbContext.Database.Migrate();
+        }
+
+        private void ConfigureApplicationDBContext(IServiceCollection services)
+        {
+            var dbConfig = Configuration.GetSection("MySQLConfig");
+            var host = dbConfig["db_host"] ?? "localhost";
+            var port = dbConfig["db_port"] ?? "3306";
+            var password = dbConfig["db_password"] ?? "admin";
+
+            services.AddDbContext<BaseContext>(options =>
+            {
+                options.UseMySql($"Server={host};Port={port};User=root;Password={password};Database=SampleDB;");
+            });
         }
     }
 }
